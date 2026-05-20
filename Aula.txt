@@ -1,5 +1,17 @@
 
+😃 Gerar imagem Docker com Buildx [Multi-plataforma]
+
+ver: 20/05/2026
+
+
+-----------------------------------------------------------
+
+
+✅ 0. Instalar pacotes e verificar Docker
+
 sudo apt install docker.io docker-compose -y
+
+sudo gpasswd -a aluno docker && exit
 
 docker --version
 
@@ -13,20 +25,20 @@ default*      docker
  \_ default    \_ default       running   v0.0.0+unknown   linux/amd64, linux/amd64/v2, linux/amd64/v3, linux/386
 
 
-Obs.: Buildx funcionando, porém o builder atual (default) está usando o driver antigo docker, com recursos limitados.
+❌ Obs.: Buildx funcionando, porém o builder atual (default) está usando o driver antigo docker, com recursos limitados.
 
 
-1. Criar builder moderno
+✅ 1. Criar builder atualizado
 
 docker buildx create --name meu_builder --driver docker-container --use
 
 
-2. Inicializar builder
+✅ 2. Inicializar builder
 
 docker buildx inspect --bootstrap
 
 
-3. Verificar novamente
+✅ 3. Verificar novamente
 
 docker buildx ls
 
@@ -35,25 +47,64 @@ meu_builder*       docker-container
  \_ meu_builder0    \_ unix:///var/run/docker.sock   running   v0.29.0          linux/amd64, linux/amd64/v2, linux/amd64/v3, linux/386
 
 
-4. Tornar builder padrão permanente
-
-docker buildx use meu_builder
+-----------------------------------------------------------
 
 
-5. Ver builder ativo
+😃 Fluxo para Desenvolvimento
 
-docker buildx current
+
+✅ 4. Clonar repositório com aplicação
+
+git clone https://github.com/roger437linux/appPythonIP.git && cd appPythonIP
+
+
+✅ 5. Usando buildx para gerar imagem localmente [Não envia para Docker hub]
+
+docker buildx build \
+--platform linux/amd64 \
+--tag roger437unix/app-python-ip:latest \
+--tag roger437unix/app-python-ip:1.0 \
+--load .
+
+
+🚀 Observações:
+	--load => Cria a imagem para o Docker local.
+	--load => Funciona para apenas uma arquitetura: linux/amd64
+
+
+✅ 6. Criar container Docker para testar a imagem
+
+docker run -d --rm --name pyapp -p 5000:5000 roger437unix/app-python-ip:latest
+
+
+
+❌ 7. Se necessário alterar a identificação [tag] da imagem
+
+docker tag app-python-ip:latest <YOUR_PERSONAL_ACCOUNT>/app-python-ip:latest
+
+
+
+✅ 8. Enviar para o Docker hub
+
+docker login
+
+docker push roger437unix/app-python-ip:latest
+
+docker push roger437linux/app-python-ip:1.0
 
 
 -----------------------------------------------------------
 
 
-6. Logar no Docker hub
+😃 Fluxo para Produção
+
+
+✅ 9. Logar no Docker hub
 
 docker login
 
 
-7. Criar imagem e enviar para o Docker hub
+✅ 10. Criar imagem e enviar para o Docker hub
 
 docker buildx build --platform linux/amd64 -t roger437linux/app-python-ip:latest -t roger437linux/app-python-ip:1.0 --push .
 
